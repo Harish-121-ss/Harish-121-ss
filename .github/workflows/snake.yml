@@ -1,0 +1,38 @@
+name: Generate GitHub Profile Assets
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: profile-assets
+  cancel-in-progress: false
+
+jobs:
+  snake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Generate contribution snake
+        uses: Platane/snk/svg-only@v3
+        with:
+          github_user_name: Harish-121-ss
+          outputs: |
+            profile/github-snake-dark.svg?palette=github-dark&color_snake=#00BFFF
+
+      - name: Commit generated asset
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add profile/github-snake-dark.svg
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: update contribution animation"
+          git push
